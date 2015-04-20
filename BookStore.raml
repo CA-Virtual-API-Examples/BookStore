@@ -1,0 +1,94 @@
+#%RAML 0.8
+---
+title: Bookshop API
+version: v1
+baseUri: http://booksforall.com
+documentation:
+  - title: Bookshop API
+    content: |
+      You can get an individual book or search
+      for books by title, author and/or publisher.
+#      
+# ==================================
+# Resource Types and Traits (Common)
+# ==================================
+resourceTypes:
+  - createBook:
+      usage: This resourceType should be used when creating books
+      post:
+        queryParameters:
+          title:
+            type: string
+            required: true
+          author:
+            type: string
+            required: true
+          publisher:
+            type: string
+            required: true
+        headers:
+          header-param-1:
+          header-param-2:
+  - formatSelectable:
+      usage: This resourceType should be used when the response format is selectable
+      uriParameters:
+        mediaTypeExtension:
+          type: string
+          required: true
+          enum: [ .json, .xml ]
+traits:
+  - bookResponses:
+      usage: Apply this to return a book in XML or JSON formats
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "title": "How to Avoid Huge Ships", 
+                  "author": "Captain John W. Trimmer",
+                  "publisher": "Cornell Maritime Press"
+                }
+            text/xml:
+              example: |
+                <book>
+                  <title>How to Avoid Huge Ships</title>
+                  <author>Captain John W. Trimmer</author>
+                  <publisher>Cornell Maritime Press</publisher>
+                </book>
+#      
+# ==================================
+# Resources are defined below
+# ==================================
+/bookstore:
+  /book:
+    type: createBook
+    /{id}/format{mediaTypeExtension}:
+      uriParameters:
+        id:
+          type: string
+      type: formatSelectable
+      get:
+        is: [ bookResponses ]
+  /booksearch:
+    get:
+      queryParameters:
+        title:
+          type: string
+          required: false
+        author:
+          type: string
+          required: false
+        publisher:
+          type: string
+          required: false
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "title": "How to Avoid Huge Ships", 
+                  "author": "Captain John W. Trimmer",
+                  "publisher": "Cornell Maritime Press"
+                }
